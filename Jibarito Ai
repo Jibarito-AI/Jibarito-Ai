@@ -1,0 +1,104 @@
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Mic, Send, MapPin, Settings, User, AlertCircle, Globe, Bell, Briefcase } from "lucide-react";
+import { useState, useEffect } from "react";
+
+export default function JibaritoAI() {
+  const [message, setMessage] = useState("");
+  const [chat, setChat] = useState([
+    { user: "Jibarito AI", text: "¡Saludos! ¿En qué te puedo ayudar hoy?" },
+  ]);
+
+  const sendMessage = async () => {
+    if (message.trim() !== "") {
+      const newChat = [...chat, { user: "Tú", text: message }];
+      setChat(newChat);
+      setMessage("");
+
+      // Call API for response
+      const botResponse = await fetchAIResponse(message);
+      setChat([...newChat, { user: "Jibarito AI", text: botResponse }]);
+    }
+  };
+
+  const fetchAIResponse = async (input) => {
+    try {
+      const response = await fetch(`/api/jibarito-ai?query=${encodeURIComponent(input)}`);
+      const data = await response.json();
+      return data.response || "Lo siento, aún estoy aprendiendo. ¿Puedes darme más detalles?";
+    } catch (error) {
+      return "Hubo un error al obtener la información. Intenta nuevamente.";
+    }
+  };
+
+  useEffect(() => {
+    // Fetch mock data instead of real-time APIs for testing
+    const fetchMockData = async () => {
+      try {
+        const response = await fetch(`/api/mock-data`);
+        const data = await response.json();
+        console.log("Datos simulados cargados:", data);
+      } catch (error) {
+        console.error("Error al obtener datos simulados:", error);
+      }
+    };
+    fetchMockData();
+  }, []);
+
+  return (
+    <div className="flex flex-col h-screen bg-gray-100 p-4">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex items-center gap-2">
+          <img src="/mnt/data/A_digital_illustration_of_a_coquí,_the_small_Puert.png" alt="Jibarito AI Logo" className="h-12 w-12" />
+          <h1 className="text-2xl font-bold">Jibarito AI</h1>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="ghost"><Bell /></Button>
+          <Button variant="ghost"><Settings /></Button>
+        </div>
+      </div>
+      
+      {/* Chat Window */}
+      <div className="flex-1 overflow-y-auto mb-4 bg-white p-4 rounded-lg shadow">
+        {chat.map((msg, index) => (
+          <div key={index} className="mb-2">
+            <strong>{msg.user}:</strong> {msg.text}
+          </div>
+        ))}
+      </div>
+      
+      {/* Input Bar */}
+      <div className="flex gap-2">
+        <Button variant="ghost"><Mic /></Button>
+        <Input 
+          placeholder="Escribe tu mensaje..." 
+          value={message} 
+          onChange={(e) => setMessage(e.target.value)} 
+          className="flex-1" 
+        />
+        <Button onClick={sendMessage}><Send /></Button>
+      </div>
+      
+      {/* Quick Actions */}
+      <div className="mt-4 flex justify-around">
+        <Button variant="outline" className="flex items-center gap-2">
+          <MapPin /> Lugares
+        </Button>
+        <Button variant="outline" className="flex items-center gap-2">
+          <User /> Trámites
+        </Button>
+        <Button variant="outline" className="flex items-center gap-2">
+          <AlertCircle /> Emergencias
+        </Button>
+        <Button variant="outline" className="flex items-center gap-2">
+          <Globe /> Noticias
+        </Button>
+        <Button variant="outline" className="flex items-center gap-2">
+          <Briefcase /> Negocios
+        </Button>
+      </div>
+    </div>
+  );
+}
