@@ -81,10 +81,11 @@ export default function SessionsScreen() {
           <Card key={session.id}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
               <View style={{ flex: 1, gap: 4 }}>
-                <Text style={{ color: theme.colors.muted }}>{session.time}</Text>
+                <Text style={{ color: theme.colors.muted }}>{session.dateLabel ?? ''}{session.dateLabel ? ' • ' : ''}{session.timeLabel ?? session.startsAt}</Text>
                 <Text style={{ color: theme.colors.text, fontWeight: '700', fontSize: 18 }}>{session.title}</Text>
                 <Text style={{ color: theme.colors.muted }}>{session.attendees} attending • {session.provider?.toUpperCase() ?? 'SESSION'}</Text>
                 {session.instructorName ? <Text style={{ color: theme.colors.muted }}>Guide: {session.instructorName}</Text> : null}
+                {session.timezone ? <Text style={{ color: theme.colors.muted }}>Timezone: {session.timezone}</Text> : null}
               </View>
               <Badge label={session.status} />
             </View>
