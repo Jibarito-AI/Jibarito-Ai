@@ -41,5 +41,5 @@ export async function runSessionJoinAction(sessionId: string) {
 export async function runSessionReminderAction(sessionId: string) {
   const sessions = await listLiveSessions();
   const session = sessions.find((item) => item.id === sessionId);
-  return setSessionReminder(sessionId, session?.title ?? 'Osheni Session');
+  return setSessionReminder(sessionId, session?.title ?? 'Osheni Session', session?.time);
 }
