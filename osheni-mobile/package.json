@@ -18,8 +18,6 @@
     "expo-status-bar": "~3.0.9",
     "react": "19.1.0",
     "react-native": "0.79.5",
-    "react-native-purchases": "8.3.3",
-    "react-native-purchases-ui": "8.3.3",
     "react-native-url-polyfill": "2.0.0"
   },
   "devDependencies": {
