@@ -1,16 +1,49 @@
-import { Text, View } from 'react-native';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { Pressable, Text, View } from 'react-native';
 import { AppScreen } from '@/components/AppScreen';
 import { Badge } from '@/components/Badge';
 import { Card } from '@/components/Card';
 import { getBillingIntegrationState } from '@/services/billingIntegrationService';
+import { runPrototypePurchaseAction } from '@/services/billingPurchaseService';
 import { availablePlans, getBillingState } from '@/services/billingService';
 import { theme } from '@/lib/theme';
 
-const billingPromise = getBillingState();
-const integrationPromise = getBillingIntegrationState();
+type BillingIntegrationState = Awaited<ReturnType<typeof getBillingIntegrationState>> | null;
+type BillingState = Awaited<ReturnType<typeof getBillingState>> | null;
 
-export default async function BillingScreen() {
-  const [billing, integration] = await Promise.all([billingPromise, integrationPromise]);
+export default function BillingScreen() {
+  const [billing, setBilling] = useState<BillingState>(null);
+  const [integration, setIntegration] = useState<BillingIntegrationState>(null);
+  const [purchaseStatus, setPurchaseStatus] = useState('');
+
+  useEffect(() => {
+    (async () => {
+      const [billingState, integrationState] = await Promise.all([
+        getBillingState(),
+        getBillingIntegrationState()
+      ]);
+      setBilling(billingState);
+      setIntegration(integrationState);
+    })();
+  }, []);
+
+  const handlePurchase = async () => {
+    setPurchaseStatus('Checking purchase options...');
+    const result = await runPrototypePurchaseAction();
+    setPurchaseStatus(result.message);
+  };
+
+  if (!billing || !integration) {
+    return (
+      <AppScreen title="Subscription & Billing">
+        <Card>
+          <Text style={{ color: theme.colors.text }}>Loading billing...</Text>
+        </Card>
+      </AppScreen>
+    );
+  }
 
   return (
     <AppScreen title="Subscription & Billing">
@@ -30,6 +63,10 @@ export default async function BillingScreen() {
             </View>
           ))}
         </View>
+        <Pressable onPress={handlePurchase} style={{ backgroundColor: theme.colors.primary, borderRadius: theme.radius.md, paddingVertical: 12, paddingHorizontal: 14 }}>
+          <Text style={{ color: theme.colors.white, textAlign: 'center', fontWeight: '700' }}>Continue to Purchase</Text>
+        </Pressable>
+        {purchaseStatus ? <Text style={{ color: theme.colors.muted }}>{purchaseStatus}</Text> : null}
       </Card>
 
       <Card>
