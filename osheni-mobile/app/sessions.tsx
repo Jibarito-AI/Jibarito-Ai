@@ -1,14 +1,35 @@
-import { Text, View } from 'react-native';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { Pressable, Text, View } from 'react-native';
 import { AppScreen } from '@/components/AppScreen';
 import { Badge } from '@/components/Badge';
 import { Card } from '@/components/Card';
+import { runSessionJoinAction, runSessionReminderAction } from '@/services/sessionActionService';
 import { listLiveSessions } from '@/services/sessionService';
+import type { LiveSession } from '@/types/session';
 import { theme } from '@/lib/theme';
 
-const sessionsPromise = listLiveSessions();
+export default function SessionsScreen() {
+  const [sessions, setSessions] = useState<LiveSession[]>([]);
+  const [status, setStatus] = useState<Record<string, string>>({});
 
-export default async function SessionsScreen() {
-  const sessions = await sessionsPromise;
+  useEffect(() => {
+    (async () => {
+      const loaded = await listLiveSessions();
+      setSessions(loaded);
+    })();
+  }, []);
+
+  const handleJoin = async (sessionId: string) => {
+    const result = await runSessionJoinAction(sessionId);
+    setStatus((prev) => ({ ...prev, [sessionId]: result.message }));
+  };
+
+  const handleReminder = async (sessionId: string) => {
+    const result = await runSessionReminderAction(sessionId);
+    setStatus((prev) => ({ ...prev, [sessionId]: result.message }));
+  };
 
   return (
     <AppScreen title="Live Sessions">
@@ -23,9 +44,18 @@ export default async function SessionsScreen() {
             </View>
             <Badge label={session.status} />
           </View>
-          <View style={{ backgroundColor: theme.colors.primary, borderRadius: theme.radius.md, paddingVertical: 12, paddingHorizontal: 14 }}>
-            <Text style={{ color: theme.colors.white, textAlign: 'center', fontWeight: '700' }}>{session.status === 'live' ? 'Join Now' : 'Set Reminder'}</Text>
-          </View>
+
+          {session.status === 'live' ? (
+            <Pressable onPress={() => handleJoin(session.id)} style={{ backgroundColor: theme.colors.primary, borderRadius: theme.radius.md, paddingVertical: 12, paddingHorizontal: 14 }}>
+              <Text style={{ color: theme.colors.white, textAlign: 'center', fontWeight: '700' }}>Join Now</Text>
+            </Pressable>
+          ) : (
+            <Pressable onPress={() => handleReminder(session.id)} style={{ backgroundColor: theme.colors.primary, borderRadius: theme.radius.md, paddingVertical: 12, paddingHorizontal: 14 }}>
+              <Text style={{ color: theme.colors.white, textAlign: 'center', fontWeight: '700' }}>Set Reminder</Text>
+            </Pressable>
+          )}
+
+          {status[session.id] ? <Text style={{ color: theme.colors.muted }}>{status[session.id]}</Text> : null}
         </Card>
       ))}
     </AppScreen>
