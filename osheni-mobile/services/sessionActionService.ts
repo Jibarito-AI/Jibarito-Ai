@@ -1,3 +1,4 @@
+import { tryOpenLink } from '@/services/linkingService';
 import { setSessionReminder } from '@/services/reminderService';
 import { resolveSessionJoin } from '@/services/sessionService';
 
@@ -11,13 +12,29 @@ export async function runSessionJoinAction(sessionId: string) {
     };
   }
 
-  const deepLink = joinPayload.deepLinkUrl ? ` Deep link: ${joinPayload.deepLinkUrl}` : '';
-  const webLink = joinPayload.joinUrl ? ` Web: ${joinPayload.joinUrl}` : '';
+  const deepLinkAttempt = await tryOpenLink(joinPayload.deepLinkUrl ?? null);
+
+  if (deepLinkAttempt.ok) {
+    return {
+      ok: true,
+      message: `Opened ${joinPayload.provider.toUpperCase()} deep link successfully.`,
+      joinPayload,
+      openResult: deepLinkAttempt
+    };
+  }
+
+  const webAttempt = await tryOpenLink(joinPayload.joinUrl ?? null);
+
+  const message = webAttempt.ok
+    ? `Deep link unavailable. Opened ${joinPayload.provider.toUpperCase()} web URL instead.`
+    : `Resolved ${joinPayload.provider.toUpperCase()} session but could not open automatically.`;
 
   return {
-    ok: true,
-    message: `Resolved ${joinPayload.provider.toUpperCase()} session.${deepLink}${webLink}`,
-    joinPayload
+    ok: webAttempt.ok,
+    message,
+    joinPayload,
+    openResult: webAttempt,
+    fallbackResult: deepLinkAttempt
   };
 }
 
