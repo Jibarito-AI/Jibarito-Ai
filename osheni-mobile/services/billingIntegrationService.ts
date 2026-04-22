@@ -7,10 +7,19 @@ export async function getBillingIntegrationState() {
       fetchOfferings()
     ]);
 
+    const currentOffering = offerings?.current;
+    const packages = currentOffering?.availablePackages ?? [];
+
     return {
       ok: true,
       customerInfo,
-      offerings
+      offerings,
+      summary: {
+        activeEntitlements: Object.keys(customerInfo?.entitlements?.active ?? {}),
+        currentOfferingIdentifier: currentOffering?.identifier ?? null,
+        packageCount: packages.length,
+        packageLabels: packages.map((pkg: any) => pkg.identifier)
+      }
     };
   } catch (error) {
     return {
