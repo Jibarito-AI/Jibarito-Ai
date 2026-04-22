@@ -1,22 +1,34 @@
+import { useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
 import { AppScreen } from '@/components/AppScreen';
 import { Card } from '@/components/Card';
 import { meditations, quickActions } from '@/lib/content';
 import { getRepositoryBackedNextLiveSession } from '@/services/repositoryBackedSessionService';
 import { getCurrentUser } from '@/services/userService';
+import type { LiveSession } from '@/types/session';
+import type { UserProfile } from '@/types/user';
 import { theme } from '@/lib/theme';
 
-const userPromise = getCurrentUser();
-const nextSessionPromise = getRepositoryBackedNextLiveSession();
+export default function HomeScreen() {
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [nextSession, setNextSession] = useState<LiveSession | null>(null);
 
-export default async function HomeScreen() {
-  const [user, nextSession] = await Promise.all([userPromise, nextSessionPromise]);
+  useEffect(() => {
+    (async () => {
+      const [u, s] = await Promise.all([
+        getCurrentUser(),
+        getRepositoryBackedNextLiveSession()
+      ]);
+      setUser(u);
+      setNextSession(s);
+    })();
+  }, []);
 
   return (
     <AppScreen title="Home Dashboard">
       <Card style={{ borderRadius: theme.radius.lg, padding: theme.spacing.lg }}>
-        <Text style={{ color: theme.colors.muted }}>Good morning, {user.firstName}</Text>
-        <Text style={{ color: theme.colors.text, fontSize: 24, fontWeight: '700' }}>{user.streakCount ?? 0} day streak 🔥</Text>
+        <Text style={{ color: theme.colors.muted }}>Good morning, {user?.firstName ?? '...'}</Text>
+        <Text style={{ color: theme.colors.text, fontSize: 24, fontWeight: '700' }}>{user?.streakCount ?? 0} day streak 🔥</Text>
         <Text style={{ color: theme.colors.text }}>Peace comes from what you practice daily.</Text>
       </Card>
 
