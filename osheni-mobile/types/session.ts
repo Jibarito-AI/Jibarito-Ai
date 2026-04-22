@@ -1,3 +1,5 @@
+import type { ExternalSessionLink, SessionProvider } from '@/types/integration';
+
 export type LiveSessionStatus = 'upcoming' | 'live' | 'completed';
 
 export type LiveSession = {
@@ -7,6 +9,7 @@ export type LiveSession = {
   date?: string;
   attendees: number;
   status: LiveSessionStatus;
-  zoomUrl?: string;
-  passcode?: string;
+  provider?: SessionProvider;
+  link?: ExternalSessionLink;
+  instructorName?: string;
 };
