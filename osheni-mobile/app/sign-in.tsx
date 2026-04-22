@@ -1,6 +1,4 @@
-'use client';
-
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
@@ -9,14 +7,23 @@ import { runPrototypeAuth } from '@/services/prototypeAuthService';
 import { theme } from '@/lib/theme';
 
 export default function SignInScreen() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [status, setStatus] = useState('');
 
   const handleSubmit = async () => {
+    if (!email.trim() || !password.trim()) {
+      setStatus('Please enter your email and password.');
+      return;
+    }
     setStatus('Signing in...');
     const result = await runPrototypeAuth('sign-in', { email, password });
-    setStatus(result.message);
+    if (result.ok) {
+      router.replace('/home');
+    } else {
+      setStatus(result.message);
+    }
   };
 
   return (

@@ -1,5 +1,5 @@
 import { getSupabaseClient } from '@/lib/supabase';
-import { submitAuth, type AuthFormData, type AuthMode } from '@/services/auth';
+import { submitAuth, type AuthFormData, type AuthMode } from '@/lib/auth';
 
 export async function runPrototypeAuth(mode: AuthMode, data: AuthFormData) {
   const { configured, client } = getSupabaseClient();

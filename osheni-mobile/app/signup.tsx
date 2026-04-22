@@ -1,6 +1,4 @@
-'use client';
-
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
@@ -9,15 +7,28 @@ import { runPrototypeAuth } from '@/services/prototypeAuthService';
 import { theme } from '@/lib/theme';
 
 export default function SignupScreen() {
+  const router = useRouter();
   const [firstName, setFirstName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [status, setStatus] = useState('');
 
   const handleSubmit = async () => {
+    if (!firstName.trim() || !email.trim() || !password.trim()) {
+      setStatus('Please fill in all fields.');
+      return;
+    }
+    if (password.length < 6) {
+      setStatus('Password must be at least 6 characters.');
+      return;
+    }
     setStatus('Creating account...');
     const result = await runPrototypeAuth('sign-up', { firstName, email, password });
-    setStatus(result.message);
+    if (result.ok) {
+      router.replace('/home');
+    } else {
+      setStatus(result.message);
+    }
   };
 
   return (

@@ -1,5 +1,3 @@
-'use client';
-
 import { useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { AppScreen } from '@/components/AppScreen';
