@@ -9,12 +9,12 @@ Notifications.setNotificationHandler({
   })
 });
 
-export async function scheduleSessionReminderNotification(sessionTitle: string, secondsFromNow: number) {
+export async function scheduleSessionReminderNotification(sessionTitle: string, secondsFromNow: number, sessionTime?: string) {
   const identifier = await Notifications.scheduleNotificationAsync({
     content: {
       title: 'Osheni Session Reminder',
-      body: `${sessionTitle} starts soon.`,
-      data: { sessionTitle }
+      body: sessionTime ? `${sessionTitle} starts at ${sessionTime}.` : `${sessionTitle} starts soon.`,
+      data: { sessionTitle, sessionTime }
     },
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
@@ -24,6 +24,7 @@ export async function scheduleSessionReminderNotification(sessionTitle: string, 
 
   return {
     identifier,
-    secondsFromNow
+    secondsFromNow,
+    sessionTime
   };
 }
