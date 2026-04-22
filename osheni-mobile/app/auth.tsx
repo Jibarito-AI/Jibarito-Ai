@@ -15,7 +15,7 @@ export default function AuthGatewayScreen() {
             <Text style={{ color: theme.colors.white, textAlign: 'center', fontWeight: '700' }}>Sign In</Text>
           </Pressable>
         </Link>
-        <Link href="/create-account" asChild>
+        <Link href="/join" asChild>
           <Pressable style={{ borderWidth: 1, borderColor: theme.colors.border, borderRadius: theme.radius.md, paddingVertical: 12 }}>
             <Text style={{ color: theme.colors.text, textAlign: 'center', fontWeight: '700' }}>Create Account</Text>
           </Pressable>
