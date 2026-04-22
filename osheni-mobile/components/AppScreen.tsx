@@ -9,7 +9,7 @@ export function AppScreen({ title, children }: { title: string; children: ReactN
       <View style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={{ padding: theme.spacing.md, gap: theme.spacing.md, paddingBottom: theme.spacing.lg }}>
           <View style={{ gap: 4 }}>
-            <Text style={{ fontSize: 12, textTransform: 'uppercase', color: theme.colors.muted }}>Osheni App</Text>
+            <Text style={{ fontSize: 12, textTransform: 'uppercase', color: theme.colors.muted }}>Osheni Club</Text>
             <Text style={{ fontSize: 28, fontWeight: '700', color: theme.colors.text }}>{title}</Text>
           </View>
           {children}

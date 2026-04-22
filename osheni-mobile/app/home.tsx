@@ -38,7 +38,7 @@ export default function HomeScreen() {
       <Card style={{ borderRadius: theme.radius.lg, padding: theme.spacing.lg }}>
         <Text style={{ color: theme.colors.muted }}>Good morning, {user?.firstName ?? '...'}</Text>
         <Text style={{ color: theme.colors.text, fontSize: 24, fontWeight: '700' }}>{user?.streakCount ?? 0} day streak 🔥</Text>
-        <Text style={{ color: theme.colors.text }}>Peace comes from what you practice daily.</Text>
+        <Text style={{ color: theme.colors.text }}>Your way towards well-being.</Text>
       </Card>
 
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm }}>

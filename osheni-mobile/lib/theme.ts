@@ -1,13 +1,13 @@
 export const theme = {
   colors: {
-    primary: '#2E75B6',
-    secondary: '#5FB3B3',
-    background: '#F8F9FA',
-    text: '#2C3E50',
-    accent: '#FF7675',
+    primary: '#3D85C4',
+    secondary: '#D4E8F5',
+    background: '#F5F8FC',
+    text: '#1E3A5F',
+    accent: '#D4736A',
     white: '#FFFFFF',
-    border: '#E2E8F0',
-    muted: '#64748B'
+    border: '#D8E6F2',
+    muted: '#6B8CAE'
   },
   radius: {
     sm: 10,
