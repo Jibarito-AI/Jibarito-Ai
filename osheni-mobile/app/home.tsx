@@ -2,12 +2,12 @@ import { Text, View } from 'react-native';
 import { AppScreen } from '@/components/AppScreen';
 import { Card } from '@/components/Card';
 import { meditations, quickActions } from '@/lib/content';
-import { getNextLiveSession } from '@/services/sessionService';
+import { getRepositoryBackedNextLiveSession } from '@/services/repositoryBackedSessionService';
 import { getCurrentUser } from '@/services/userService';
 import { theme } from '@/lib/theme';
 
 const userPromise = getCurrentUser();
-const nextSessionPromise = getNextLiveSession();
+const nextSessionPromise = getRepositoryBackedNextLiveSession();
 
 export default async function HomeScreen() {
   const [user, nextSession] = await Promise.all([userPromise, nextSessionPromise]);
@@ -30,8 +30,9 @@ export default async function HomeScreen() {
 
       <Card style={{ borderRadius: theme.radius.lg, padding: theme.spacing.lg }}>
         <Text style={{ color: theme.colors.text, fontSize: 18, fontWeight: '700' }}>Upcoming Live Session</Text>
-        <Text style={{ color: theme.colors.muted }}>{nextSession?.title ?? 'No session scheduled'} • {nextSession?.time ?? '--'}</Text>
+        <Text style={{ color: theme.colors.muted }}>{nextSession?.title ?? 'No session scheduled'} • {nextSession?.timeLabel ?? '--'}</Text>
         {nextSession?.provider ? <Text style={{ color: theme.colors.muted }}>Provider: {nextSession.provider.toUpperCase()}</Text> : null}
+        {nextSession?.timezone ? <Text style={{ color: theme.colors.muted }}>Timezone: {nextSession.timezone}</Text> : null}
       </Card>
 
       <View style={{ gap: theme.spacing.sm }}>
