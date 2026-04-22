@@ -1,29 +1,44 @@
 # Osheni Mobile Route Map
 
-## Current prototype routes
+## Current flat prototype routes
 - `/` entry
 - `/onboarding`
 - `/auth`
 - `/sign-in`
+- `/signup`
 - `/home`
 - `/explore`
 - `/sessions`
 - `/journal`
 - `/mood`
 - `/profile`
-
-## Planned next routes
 - `/progress`
 - `/billing`
-- `/help`
-- `/audio-player`
-- `/language`
 - `/notifications`
+- `/audio-player`
 
-## Planned route groups later
-- `/(public)` onboarding and auth
-- `/(app)` protected user app routes
-- `/(modal)` billing, paywall, quick actions
+## Current grouped mirror routes
+### Public
+- `/(public)/onboarding`
+- `/(public)/auth`
+- `/(public)/sign-in`
+- `/(public)/signup`
+
+### App
+- `/(app)/home`
+- `/(app)/explore`
+- `/(app)/sessions`
+- `/(app)/journal`
+- `/(app)/mood`
+- `/(app)/profile`
+- `/(app)/progress`
+- `/(app)/billing`
+- `/(app)/notifications`
+- `/(app)/audio-player`
+
+## Planned next routes
+- `/help`
+- `/language`
 
 ## Why this matters
-This keeps the prototype editable while making the later migration into a cleaner Expo Router structure easier.
+This keeps the prototype editable while introducing a cleaner Expo Router structure without breaking the existing flat routes.
