@@ -1,17 +1,46 @@
 import { buildZoomJoinPayload } from '@/integrations/zoom/zoomClient';
-import type { LiveSession } from '@/types/session';
+import type { LiveSession, LiveSessionStatus } from '@/types/session';
 
-const mockSessions: LiveSession[] = [
+function toIsoToday(hour24: number, minute: number) {
+  const date = new Date();
+  date.setHours(hour24, minute, 0, 0);
+  return date.toISOString();
+}
+
+function addMinutes(iso: string, minutes: number) {
+  const date = new Date(iso);
+  date.setMinutes(date.getMinutes() + minutes);
+  return date.toISOString();
+}
+
+function formatTimeLabel(iso: string) {
+  return new Date(iso).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+}
+
+function formatDateLabel(iso: string) {
+  return new Date(iso).toLocaleDateString([], { month: 'short', day: 'numeric' });
+}
+
+function deriveStatus(startsAt: string, endsAt?: string): LiveSessionStatus {
+  const now = new Date();
+  const start = new Date(startsAt);
+  const end = endsAt ? new Date(endsAt) : new Date(start.getTime() + 60 * 60 * 1000);
+
+  if (now >= start && now <= end) return 'live';
+  if (now > end) return 'completed';
+  return 'upcoming';
+}
+
+const rawSessions = [
   {
     id: 'session_1',
     title: 'Morning Practice',
-    time: '6:00 AM',
+    startsAt: toIsoToday(6, 0),
     attendees: 124,
-    status: 'upcoming',
-    provider: 'zoom',
+    provider: 'zoom' as const,
     instructorName: 'Osheni Guide',
     link: {
-      provider: 'zoom',
+      provider: 'zoom' as const,
       joinUrl: 'https://zoom.us/j/1111111111',
       meetingId: '1111111111',
       passcode: 'osheni'
@@ -20,13 +49,12 @@ const mockSessions: LiveSession[] = [
   {
     id: 'session_2',
     title: 'Midday Reset',
-    time: '11:00 AM',
+    startsAt: toIsoToday(11, 0),
     attendees: 97,
-    status: 'upcoming',
-    provider: 'zoom',
+    provider: 'zoom' as const,
     instructorName: 'Osheni Guide',
     link: {
-      provider: 'zoom',
+      provider: 'zoom' as const,
       joinUrl: 'https://zoom.us/j/2222222222',
       meetingId: '2222222222',
       passcode: 'osheni'
@@ -35,13 +63,12 @@ const mockSessions: LiveSession[] = [
   {
     id: 'session_3',
     title: 'Afternoon Recharge',
-    time: '4:00 PM',
+    startsAt: toIsoToday(16, 0),
     attendees: 156,
-    status: 'live',
-    provider: 'zoom',
+    provider: 'zoom' as const,
     instructorName: 'Osheni Guide',
     link: {
-      provider: 'zoom',
+      provider: 'zoom' as const,
       joinUrl: 'https://zoom.us/j/3333333333',
       meetingId: '3333333333',
       passcode: 'osheni'
@@ -50,13 +77,12 @@ const mockSessions: LiveSession[] = [
   {
     id: 'session_4',
     title: 'Evening Wind-Down',
-    time: '9:00 PM',
+    startsAt: toIsoToday(21, 0),
     attendees: 203,
-    status: 'upcoming',
-    provider: 'zoom',
+    provider: 'zoom' as const,
     instructorName: 'Osheni Guide',
     link: {
-      provider: 'zoom',
+      provider: 'zoom' as const,
       joinUrl: 'https://zoom.us/j/4444444444',
       meetingId: '4444444444',
       passcode: 'osheni'
@@ -64,16 +90,32 @@ const mockSessions: LiveSession[] = [
   }
 ];
 
+function buildSessionModels(): LiveSession[] {
+  return rawSessions.map((session) => {
+    const endsAt = addMinutes(session.startsAt, 60);
+    return {
+      ...session,
+      endsAt,
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      timeLabel: formatTimeLabel(session.startsAt),
+      dateLabel: formatDateLabel(session.startsAt),
+      status: deriveStatus(session.startsAt, endsAt)
+    };
+  });
+}
+
 export async function listLiveSessions(): Promise<LiveSession[]> {
-  return mockSessions;
+  return buildSessionModels();
 }
 
 export async function getNextLiveSession(): Promise<LiveSession | undefined> {
-  return mockSessions.find((session) => session.status === 'live') ?? mockSessions[0];
+  const sessions = buildSessionModels();
+  return sessions.find((session) => session.status === 'live') ?? sessions.find((session) => session.status === 'upcoming') ?? sessions[0];
 }
 
 export async function resolveSessionJoin(sessionId: string) {
-  const session = mockSessions.find((item) => item.id === sessionId);
+  const sessions = buildSessionModels();
+  const session = sessions.find((item) => item.id === sessionId);
   if (!session?.link || session.link.provider !== 'zoom' || !session.link.meetingId) {
     return null;
   }
