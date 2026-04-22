@@ -4,13 +4,19 @@
 - `/onboarding`
 - `/auth`
 - `/sign-in`
-- `/create-account`
+- `/signup`
+- `/create-account` (legacy route still present in prototype)
+- `/join` (older workaround route, should be treated as transitional)
+
+## Preferred current route names
+- `/sign-in`
+- `/signup`
 
 ## Target structure later
 - `/(public)/onboarding`
 - `/(public)/auth`
 - `/(public)/sign-in`
-- `/(public)/create-account`
+- `/(public)/signup`
 - `/(app)/home`
 - `/(app)/explore`
 - `/(app)/sessions`
