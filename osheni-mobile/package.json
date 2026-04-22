@@ -10,20 +10,20 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "@react-native-async-storage/async-storage": "latest",
+    "@react-native-async-storage/async-storage": "2.2.0",
     "@supabase/supabase-js": "latest",
-    "expo": "~53.0.0",
-    "expo-notifications": "latest",
-    "expo-router": "~5.0.0",
-    "expo-status-bar": "~2.2.3",
-    "react": "19.0.0",
-    "react-native": "0.79.0",
+    "expo": "~54.0.0",
+    "expo-notifications": "~0.32.16",
+    "expo-router": "~6.0.23",
+    "expo-status-bar": "~3.0.9",
+    "react": "19.1.0",
+    "react-native": "0.81.5",
     "react-native-purchases": "latest",
     "react-native-purchases-ui": "latest",
     "react-native-url-polyfill": "latest"
   },
   "devDependencies": {
-    "typescript": "~5.8.3",
-    "@types/react": "~19.0.10"
+    "typescript": "~5.9.2",
+    "@types/react": "~19.1.10"
   }
 }
