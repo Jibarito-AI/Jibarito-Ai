@@ -2,10 +2,10 @@ import { Text, TextInput, View } from 'react-native';
 import { AppScreen } from '@/components/AppScreen';
 import { Badge } from '@/components/Badge';
 import { Card } from '@/components/Card';
-import { listJournalEntries } from '@/services/journalService';
+import { getRepositoryBackedJournalEntries } from '@/services/repositoryBackedJournalService';
 import { theme } from '@/lib/theme';
 
-const entriesPromise = listJournalEntries('user_1');
+const entriesPromise = getRepositoryBackedJournalEntries('user_1');
 const moods = ['😊 Great', '🙂 Good', '😐 Okay', '😔 Not Great', '😢 Struggling'];
 
 export default async function JournalScreen() {
