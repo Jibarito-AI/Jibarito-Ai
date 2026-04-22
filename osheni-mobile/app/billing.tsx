@@ -2,13 +2,15 @@ import { Text, View } from 'react-native';
 import { AppScreen } from '@/components/AppScreen';
 import { Badge } from '@/components/Badge';
 import { Card } from '@/components/Card';
+import { getBillingIntegrationState } from '@/services/billingIntegrationService';
 import { availablePlans, getBillingState } from '@/services/billingService';
 import { theme } from '@/lib/theme';
 
 const billingPromise = getBillingState();
+const integrationPromise = getBillingIntegrationState();
 
 export default async function BillingScreen() {
-  const billing = await billingPromise;
+  const [billing, integration] = await Promise.all([billingPromise, integrationPromise]);
 
   return (
     <AppScreen title="Subscription & Billing">
@@ -31,8 +33,9 @@ export default async function BillingScreen() {
       </Card>
 
       <Card>
-        <Text style={{ color: theme.colors.text, fontWeight: '700' }}>Prototype note</Text>
-        <Text style={{ color: theme.colors.text }}>This screen is wired to a billing service and ready for RevenueCat integration later.</Text>
+        <Text style={{ color: theme.colors.text, fontWeight: '700' }}>Billing Integration</Text>
+        <Text style={{ color: theme.colors.text }}>{integration.ok ? 'RevenueCat scaffold is connected.' : 'RevenueCat integration not ready in this environment.'}</Text>
+        {!integration.ok && integration.message ? <Text style={{ color: theme.colors.muted }}>{integration.message}</Text> : null}
       </Card>
     </AppScreen>
   );
