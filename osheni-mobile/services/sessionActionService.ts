@@ -10,9 +10,12 @@ export async function runSessionJoinAction(sessionId: string) {
     };
   }
 
+  const deepLink = joinPayload.deepLinkUrl ? ` Deep link: ${joinPayload.deepLinkUrl}` : '';
+  const webLink = joinPayload.joinUrl ? ` Web: ${joinPayload.joinUrl}` : '';
+
   return {
     ok: true,
-    message: `Ready to open ${joinPayload.provider.toUpperCase()} session link.`,
+    message: `Resolved ${joinPayload.provider.toUpperCase()} session.${deepLink}${webLink}`,
     joinPayload
   };
 }
