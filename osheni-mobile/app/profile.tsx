@@ -2,10 +2,10 @@ import { Text } from 'react-native';
 import { AppScreen } from '@/components/AppScreen';
 import { Card } from '@/components/Card';
 import { profileItems } from '@/lib/content';
-import { getProfileViewModel } from '@/services/profileService';
+import { getRepositoryBackedProfileViewModel } from '@/services/repositoryBackedProfileService';
 import { theme } from '@/lib/theme';
 
-const profilePromise = getProfileViewModel();
+const profilePromise = getRepositoryBackedProfileViewModel();
 
 export default async function ProfileScreen() {
   const profile = await profilePromise;
