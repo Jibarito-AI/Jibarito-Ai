@@ -36,6 +36,14 @@ export default async function BillingScreen() {
         <Text style={{ color: theme.colors.text, fontWeight: '700' }}>Billing Integration</Text>
         <Text style={{ color: theme.colors.text }}>{integration.ok ? 'RevenueCat scaffold is connected.' : 'RevenueCat integration not ready in this environment.'}</Text>
         {!integration.ok && integration.message ? <Text style={{ color: theme.colors.muted }}>{integration.message}</Text> : null}
+        {integration.ok ? (
+          <View style={{ gap: 6 }}>
+            <Text style={{ color: theme.colors.text }}>Current offering: {integration.summary?.currentOfferingIdentifier ?? 'None'}</Text>
+            <Text style={{ color: theme.colors.text }}>Available packages: {integration.summary?.packageCount ?? 0}</Text>
+            <Text style={{ color: theme.colors.text }}>Package IDs: {(integration.summary?.packageLabels ?? []).join(', ') || 'None'}</Text>
+            <Text style={{ color: theme.colors.text }}>Active entitlements: {(integration.summary?.activeEntitlements ?? []).join(', ') || 'None'}</Text>
+          </View>
+        ) : null}
       </Card>
     </AppScreen>
   );
