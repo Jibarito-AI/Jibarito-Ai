@@ -5,6 +5,7 @@ import { Pressable, Text, View } from 'react-native';
 import { AppScreen } from '@/components/AppScreen';
 import { Badge } from '@/components/Badge';
 import { Card } from '@/components/Card';
+import { getSessionReminderState } from '@/services/reminderService';
 import { runSessionJoinAction, runSessionReminderAction } from '@/services/sessionActionService';
 import { listLiveSessions } from '@/services/sessionService';
 import type { LiveSession } from '@/types/session';
@@ -26,6 +27,18 @@ export default function SessionsScreen() {
     (async () => {
       const loaded = await listLiveSessions();
       setSessions(loaded);
+
+      const reminderStates = await Promise.all(
+        loaded.map(async (session) => {
+          const reminder = await getSessionReminderState(session.id);
+          return [session.id, { reminderSet: reminder.enabled }] as const;
+        })
+      );
+
+      setSessionState((prev) => ({
+        ...prev,
+        ...Object.fromEntries(reminderStates)
+      }));
     })();
   }, []);
 
