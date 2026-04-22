@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { AppScreen } from '@/components/AppScreen';
-import { Badge } from '@/components/Badge';
 import { Card } from '@/components/Card';
 import { getBillingIntegrationState } from '@/services/billingIntegrationService';
 import { runPrototypePurchaseExecution } from '@/services/billingExecutionService';
-import { runPrototypePurchaseAction } from '@/services/billingPurchaseService';
 import { availablePlans, getBillingState } from '@/services/billingService';
 import { theme } from '@/lib/theme';
 
@@ -15,8 +13,8 @@ type BillingState = Awaited<ReturnType<typeof getBillingState>> | null;
 export default function BillingScreen() {
   const [billing, setBilling] = useState<BillingState>(null);
   const [integration, setIntegration] = useState<BillingIntegrationState>(null);
+  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const [purchaseStatus, setPurchaseStatus] = useState('');
-  const [executionStatus, setExecutionStatus] = useState('');
 
   useEffect(() => {
     (async () => {
@@ -26,19 +24,17 @@ export default function BillingScreen() {
       ]);
       setBilling(billingState);
       setIntegration(integrationState);
+      const recommended = availablePlans.find((p) => p.recommended);
+      if (recommended) setSelectedPlanId(recommended.id);
     })();
   }, []);
 
-  const handlePurchaseCheck = async () => {
-    setPurchaseStatus('Checking purchase options...');
-    const result = await runPrototypePurchaseAction();
-    setPurchaseStatus(result.message);
-  };
-
-  const handlePurchaseExecution = async () => {
-    setExecutionStatus('Preparing purchase execution...');
+  const handleSubscribe = async () => {
+    if (!selectedPlanId) return;
+    setPurchaseStatus('Processing...');
     const result = await runPrototypePurchaseExecution();
-    setExecutionStatus(result.message);
+    setPurchaseStatus(result.message);
+    setTimeout(() => setPurchaseStatus(''), 3000);
   };
 
   if (!billing || !integration) {
@@ -54,44 +50,96 @@ export default function BillingScreen() {
   return (
     <AppScreen title="Subscription & Billing">
       <Card>
-        <Badge label={billing.isActive ? 'Active' : 'Inactive'} />
-        <Text style={{ color: theme.colors.text, fontSize: 20, fontWeight: '700' }}>Trial / Subscription Status</Text>
-        <Text style={{ color: theme.colors.muted }}>{billing.trialDaysRemaining ?? 0} days remaining</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          <View style={{
+            backgroundColor: billing.isActive ? '#d4f4dd' : '#fde8e8',
+            borderRadius: 99,
+            paddingHorizontal: 12,
+            paddingVertical: 4,
+          }}>
+            <Text style={{ color: billing.isActive ? '#1a7a3a' : '#cc0000', fontWeight: '700', fontSize: 13 }}>
+              {billing.isActive ? 'Active' : 'Inactive'}
+            </Text>
+          </View>
+          <Text style={{ color: theme.colors.muted }}>
+            {billing.trialDaysRemaining ?? 0} trial days remaining
+          </Text>
+        </View>
+        <Text style={{ color: theme.colors.text, fontSize: 20, fontWeight: '700', marginTop: 4 }}>
+          Your Subscription
+        </Text>
       </Card>
 
       <Card>
-        <Text style={{ color: theme.colors.text, fontWeight: '700', fontSize: 18 }}>Choose Your Plan</Text>
+        <Text style={{ color: theme.colors.text, fontWeight: '700', fontSize: 18, marginBottom: 8 }}>Choose Your Plan</Text>
         <View style={{ gap: theme.spacing.sm }}>
           {availablePlans.map((plan) => (
-            <View key={plan.id} style={{ borderWidth: 1, borderColor: theme.colors.border, borderRadius: theme.radius.md, padding: theme.spacing.md }}>
-              <Text style={{ color: theme.colors.text, fontWeight: '700' }}>{plan.name}</Text>
-              <Text style={{ color: theme.colors.muted }}>{plan.priceLabel}{plan.recommended ? ' • Recommended' : ''}</Text>
-            </View>
+            <Pressable
+              key={plan.id}
+              onPress={() => setSelectedPlanId(plan.id)}
+              style={{
+                borderWidth: 2,
+                borderColor: selectedPlanId === plan.id ? theme.colors.primary : theme.colors.border,
+                borderRadius: theme.radius.md,
+                padding: theme.spacing.md,
+                backgroundColor: selectedPlanId === plan.id ? '#f0f8ff' : theme.colors.white,
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <View>
+                <Text style={{ color: theme.colors.text, fontWeight: '700', fontSize: 16 }}>{plan.name}</Text>
+                <Text style={{ color: theme.colors.muted }}>{plan.priceLabel}</Text>
+                {plan.recommended ? (
+                  <Text style={{ color: theme.colors.primary, fontWeight: '600', fontSize: 12, marginTop: 2 }}>Recommended</Text>
+                ) : null}
+              </View>
+              <View style={{
+                width: 24,
+                height: 24,
+                borderRadius: 12,
+                borderWidth: 2,
+                borderColor: selectedPlanId === plan.id ? theme.colors.primary : theme.colors.border,
+                backgroundColor: selectedPlanId === plan.id ? theme.colors.primary : 'transparent',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+                {selectedPlanId === plan.id ? (
+                  <Text style={{ color: theme.colors.white, fontSize: 14, fontWeight: '700' }}>✓</Text>
+                ) : null}
+              </View>
+            </Pressable>
           ))}
         </View>
-        <Pressable onPress={handlePurchaseCheck} style={{ backgroundColor: theme.colors.primary, borderRadius: theme.radius.md, paddingVertical: 12, paddingHorizontal: 14 }}>
-          <Text style={{ color: theme.colors.white, textAlign: 'center', fontWeight: '700' }}>Check Purchase Options</Text>
-        </Pressable>
-        {purchaseStatus ? <Text style={{ color: theme.colors.muted }}>{purchaseStatus}</Text> : null}
 
-        <Pressable onPress={handlePurchaseExecution} style={{ borderWidth: 1, borderColor: theme.colors.border, borderRadius: theme.radius.md, paddingVertical: 12, paddingHorizontal: 14 }}>
-          <Text style={{ color: theme.colors.text, textAlign: 'center', fontWeight: '700' }}>Run Purchase Execution Scaffold</Text>
+        <Pressable
+          onPress={handleSubscribe}
+          style={({ pressed }) => ({
+            backgroundColor: pressed ? theme.colors.secondary : theme.colors.primary,
+            borderRadius: theme.radius.md,
+            paddingVertical: 14,
+            paddingHorizontal: 14,
+            marginTop: 4,
+            opacity: selectedPlanId ? 1 : 0.5,
+          })}
+        >
+          <Text style={{ color: theme.colors.white, textAlign: 'center', fontWeight: '700', fontSize: 16 }}>
+            Subscribe Now
+          </Text>
         </Pressable>
-        {executionStatus ? <Text style={{ color: theme.colors.muted }}>{executionStatus}</Text> : null}
+        {purchaseStatus ? (
+          <Text style={{ color: theme.colors.primary, textAlign: 'center', fontWeight: '600', marginTop: 4 }}>
+            {purchaseStatus}
+          </Text>
+        ) : null}
       </Card>
 
       <Card>
-        <Text style={{ color: theme.colors.text, fontWeight: '700' }}>Billing Integration</Text>
-        <Text style={{ color: theme.colors.text }}>{integration.ok ? 'RevenueCat scaffold is connected.' : 'RevenueCat integration not ready in this environment.'}</Text>
-        {!integration.ok && integration.message ? <Text style={{ color: theme.colors.muted }}>{integration.message}</Text> : null}
-        {integration.ok ? (
-          <View style={{ gap: 6 }}>
-            <Text style={{ color: theme.colors.text }}>Current offering: {integration.summary?.currentOfferingIdentifier ?? 'None'}</Text>
-            <Text style={{ color: theme.colors.text }}>Available packages: {integration.summary?.packageCount ?? 0}</Text>
-            <Text style={{ color: theme.colors.text }}>Package IDs: {(integration.summary?.packageLabels ?? []).join(', ') || 'None'}</Text>
-            <Text style={{ color: theme.colors.text }}>Active entitlements: {(integration.summary?.activeEntitlements ?? []).join(', ') || 'None'}</Text>
-          </View>
-        ) : null}
+        <Text style={{ color: theme.colors.muted, fontSize: 13, textAlign: 'center' }}>
+          Subscriptions will be processed through the App Store or Google Play at launch.
+          Prototype mode — no charges will occur.
+        </Text>
       </Card>
     </AppScreen>
   );
