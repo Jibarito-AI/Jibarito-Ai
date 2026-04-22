@@ -17,6 +17,8 @@ type SessionUiState = {
   deepLinkUrl?: string;
   webUrl?: string;
   reminderSet?: boolean;
+  openedMessage?: string;
+  fallbackMessage?: string;
 };
 
 export default function SessionsScreen() {
@@ -51,7 +53,9 @@ export default function SessionsScreen() {
         message: result.message,
         joinProvider: result.joinPayload?.provider,
         deepLinkUrl: result.joinPayload?.deepLinkUrl,
-        webUrl: result.joinPayload?.joinUrl
+        webUrl: result.joinPayload?.joinUrl,
+        openedMessage: result.openResult?.message,
+        fallbackMessage: result.fallbackResult?.message
       }
     }));
   };
@@ -102,6 +106,8 @@ export default function SessionsScreen() {
                 {state.joinProvider ? <Text style={{ color: theme.colors.text }}>Provider: {state.joinProvider.toUpperCase()}</Text> : null}
                 {state.deepLinkUrl ? <Text style={{ color: theme.colors.text }}>Deep link: {state.deepLinkUrl}</Text> : null}
                 {state.webUrl ? <Text style={{ color: theme.colors.text }}>Web URL: {state.webUrl}</Text> : null}
+                {state.openedMessage ? <Text style={{ color: theme.colors.text }}>Open result: {state.openedMessage}</Text> : null}
+                {state.fallbackMessage ? <Text style={{ color: theme.colors.text }}>Fallback result: {state.fallbackMessage}</Text> : null}
               </Card>
             ) : null}
           </Card>
