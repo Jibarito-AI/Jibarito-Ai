@@ -11,19 +11,20 @@
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
-    "@supabase/supabase-js": "latest",
+    "@supabase/supabase-js": "2.49.4",
     "expo": "~54.0.0",
     "expo-notifications": "~0.32.16",
     "expo-router": "~6.0.23",
     "expo-status-bar": "~3.0.9",
     "react": "19.1.0",
-    "react-native": "0.81.5",
-    "react-native-purchases": "latest",
-    "react-native-purchases-ui": "latest",
-    "react-native-url-polyfill": "latest"
+    "react-native": "0.79.5",
+    "react-native-purchases": "8.3.3",
+    "react-native-purchases-ui": "8.3.3",
+    "react-native-url-polyfill": "2.0.0"
   },
   "devDependencies": {
-    "typescript": "~5.9.2",
-    "@types/react": "~19.1.10"
+    "@types/react": "~19.1.10",
+    "babel-preset-expo": "~13.0.0",
+    "typescript": "~5.9.2"
   }
 }
