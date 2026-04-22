@@ -5,8 +5,11 @@ export type LiveSessionStatus = 'upcoming' | 'live' | 'completed';
 export type LiveSession = {
   id: string;
   title: string;
-  time: string;
-  date?: string;
+  startsAt: string;
+  endsAt?: string;
+  timezone?: string;
+  timeLabel?: string;
+  dateLabel?: string;
   attendees: number;
   status: LiveSessionStatus;
   provider?: SessionProvider;
