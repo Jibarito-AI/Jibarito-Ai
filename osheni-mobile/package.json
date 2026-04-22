@@ -11,7 +11,6 @@
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
-    "@supabase/supabase-js": "2.49.4",
     "expo": "~54.0.0",
     "expo-constants": "~17.0.8",
     "expo-linking": "~7.0.5",
@@ -24,8 +23,7 @@
     "react-native-gesture-handler": "~2.24.0",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.10.0",
-    "react-native-url-polyfill": "2.0.0",
-    "stream-browserify": "3.0.0"
+    "react-native-url-polyfill": "2.0.0"
   },
   "devDependencies": {
     "@types/react": "~19.1.10",
