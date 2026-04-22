@@ -1,6 +1,7 @@
 import { Link, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, Text, TextInput, View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Screen } from '@/components/Screen';
 import { Card } from '@/components/Card';
 import { runPrototypeAuth } from '@/services/prototypeAuthService';
@@ -20,6 +21,7 @@ export default function SignInScreen() {
     setStatus('Signing in...');
     const result = await runPrototypeAuth('sign-in', { email, password });
     if (result.ok) {
+      await AsyncStorage.setItem('osheni_logged_in', 'true');
       router.replace('/home');
     } else {
       setStatus(result.message);

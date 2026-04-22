@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { AppScreen } from '@/components/AppScreen';
-import { Badge } from '@/components/Badge';
 import { Card } from '@/components/Card';
 import { getSessionReminderState } from '@/services/reminderService';
 import { runSessionJoinAction, runSessionReminderAction } from '@/services/sessionActionService';
@@ -10,13 +9,8 @@ import type { LiveSession } from '@/types/session';
 import { theme } from '@/lib/theme';
 
 type SessionUiState = {
-  message?: string;
-  joinProvider?: string;
-  deepLinkUrl?: string;
-  webUrl?: string;
   reminderSet?: boolean;
-  openedMessage?: string;
-  fallbackMessage?: string;
+  joinedAt?: string;
 };
 
 export default function SessionsScreen() {
@@ -35,38 +29,23 @@ export default function SessionsScreen() {
         })
       );
 
-      setSessionState((prev) => ({
-        ...prev,
-        ...Object.fromEntries(reminderStates)
-      }));
+      setSessionState(Object.fromEntries(reminderStates));
     })();
   }, []);
 
   const handleJoin = async (sessionId: string) => {
-    const result = await runSessionJoinAction(sessionId);
+    await runSessionJoinAction(sessionId);
     setSessionState((prev) => ({
       ...prev,
-      [sessionId]: {
-        ...prev[sessionId],
-        message: result.message,
-        joinProvider: result.joinPayload?.provider,
-        deepLinkUrl: result.joinPayload?.deepLinkUrl,
-        webUrl: result.joinPayload?.joinUrl,
-        openedMessage: result.openResult?.message,
-        fallbackMessage: result.fallbackResult?.message
-      }
+      [sessionId]: { ...prev[sessionId], joinedAt: new Date().toLocaleTimeString() },
     }));
   };
 
   const handleReminder = async (sessionId: string) => {
-    const result = await runSessionReminderAction(sessionId);
+    await runSessionReminderAction(sessionId);
     setSessionState((prev) => ({
       ...prev,
-      [sessionId]: {
-        ...prev[sessionId],
-        message: result.message,
-        reminderSet: true
-      }
+      [sessionId]: { ...prev[sessionId], reminderSet: true },
     }));
   };
 
@@ -74,41 +53,66 @@ export default function SessionsScreen() {
     <AppScreen title="Live Sessions">
       {sessions.map((session) => {
         const state = sessionState[session.id];
+        const isLive = session.status === 'live';
 
         return (
           <Card key={session.id}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <View style={{ flex: 1, gap: 4 }}>
-                <Text style={{ color: theme.colors.muted }}>{session.dateLabel ?? ''}{session.dateLabel ? ' • ' : ''}{session.timeLabel ?? session.startsAt}</Text>
+                <Text style={{ color: theme.colors.muted }}>
+                  {session.dateLabel ? `${session.dateLabel} • ` : ''}{session.timeLabel ?? session.startsAt}
+                </Text>
                 <Text style={{ color: theme.colors.text, fontWeight: '700', fontSize: 18 }}>{session.title}</Text>
-                <Text style={{ color: theme.colors.muted }}>{session.attendees} attending • {session.provider?.toUpperCase() ?? 'SESSION'}</Text>
-                {session.instructorName ? <Text style={{ color: theme.colors.muted }}>Guide: {session.instructorName}</Text> : null}
-                {session.timezone ? <Text style={{ color: theme.colors.muted }}>Timezone: {session.timezone}</Text> : null}
+                <Text style={{ color: theme.colors.muted }}>{session.attendees} attending</Text>
+                {session.instructorName ? (
+                  <Text style={{ color: theme.colors.muted }}>Guide: {session.instructorName}</Text>
+                ) : null}
               </View>
-              <Badge label={session.status} />
+
+              <View style={{
+                backgroundColor: isLive ? '#d4f4dd' : '#E6F3F3',
+                borderRadius: 99,
+                paddingHorizontal: 12,
+                paddingVertical: 4,
+                alignSelf: 'flex-start',
+              }}>
+                <Text style={{ color: isLive ? '#1a7a3a' : theme.colors.muted, fontWeight: '700', fontSize: 12 }}>
+                  {isLive ? '● LIVE' : 'Upcoming'}
+                </Text>
+              </View>
             </View>
 
-            {session.status === 'live' ? (
-              <Pressable onPress={() => handleJoin(session.id)} style={{ backgroundColor: theme.colors.primary, borderRadius: theme.radius.md, paddingVertical: 12, paddingHorizontal: 14 }}>
-                <Text style={{ color: theme.colors.white, textAlign: 'center', fontWeight: '700' }}>Join Now</Text>
-              </Pressable>
+            {isLive ? (
+              state?.joinedAt ? (
+                <View style={{ backgroundColor: '#d4f4dd', borderRadius: theme.radius.md, paddingVertical: 12, alignItems: 'center' }}>
+                  <Text style={{ color: '#1a7a3a', fontWeight: '700' }}>Joined at {state.joinedAt}</Text>
+                </View>
+              ) : (
+                <Pressable
+                  onPress={() => handleJoin(session.id)}
+                  style={{ backgroundColor: theme.colors.primary, borderRadius: theme.radius.md, paddingVertical: 12 }}
+                >
+                  <Text style={{ color: theme.colors.white, textAlign: 'center', fontWeight: '700' }}>Join Now</Text>
+                </Pressable>
+              )
             ) : (
-              <Pressable onPress={() => handleReminder(session.id)} style={{ backgroundColor: theme.colors.primary, borderRadius: theme.radius.md, paddingVertical: 12, paddingHorizontal: 14 }}>
-                <Text style={{ color: theme.colors.white, textAlign: 'center', fontWeight: '700' }}>{state?.reminderSet ? 'Reminder Set' : 'Set Reminder'}</Text>
+              <Pressable
+                onPress={() => handleReminder(session.id)}
+                style={{
+                  backgroundColor: state?.reminderSet ? '#E6F3F3' : theme.colors.primary,
+                  borderRadius: theme.radius.md,
+                  paddingVertical: 12,
+                }}
+              >
+                <Text style={{
+                  color: state?.reminderSet ? theme.colors.primary : theme.colors.white,
+                  textAlign: 'center',
+                  fontWeight: '700',
+                }}>
+                  {state?.reminderSet ? '✓ Reminder Set' : 'Set Reminder'}
+                </Text>
               </Pressable>
             )}
-
-            {state?.message ? (
-              <Card>
-                <Text style={{ color: theme.colors.text, fontWeight: '600' }}>Action Status</Text>
-                <Text style={{ color: theme.colors.muted }}>{state.message}</Text>
-                {state.joinProvider ? <Text style={{ color: theme.colors.text }}>Provider: {state.joinProvider.toUpperCase()}</Text> : null}
-                {state.deepLinkUrl ? <Text style={{ color: theme.colors.text }}>Deep link: {state.deepLinkUrl}</Text> : null}
-                {state.webUrl ? <Text style={{ color: theme.colors.text }}>Web URL: {state.webUrl}</Text> : null}
-                {state.openedMessage ? <Text style={{ color: theme.colors.text }}>Open result: {state.openedMessage}</Text> : null}
-                {state.fallbackMessage ? <Text style={{ color: theme.colors.text }}>Fallback result: {state.fallbackMessage}</Text> : null}
-              </Card>
-            ) : null}
           </Card>
         );
       })}

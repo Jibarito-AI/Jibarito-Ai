@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Alert, Pressable, Text, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AppScreen } from '@/components/AppScreen';
 import { Card } from '@/components/Card';
 import { getEditableProfile, saveEditableProfile } from '@/services/repositoryBackedEditableProfileService';
@@ -40,7 +41,10 @@ export default function ProfileScreen() {
     if (item.label === 'Log Out') {
       Alert.alert('Log Out', 'Are you sure you want to log out?', [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Log Out', style: 'destructive', onPress: () => router.replace('/auth' as any) },
+        { text: 'Log Out', style: 'destructive', onPress: async () => {
+          await AsyncStorage.removeItem('osheni_logged_in');
+          router.replace('/auth' as any);
+        }},
       ]);
       return;
     }

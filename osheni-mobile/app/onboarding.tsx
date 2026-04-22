@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Pressable, SafeAreaView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { theme } from '@/lib/theme';
 
 type Language = 'en' | 'es';
@@ -30,10 +31,12 @@ export default function OnboardingScreen() {
     setSelectedTimes((prev) => prev.includes(time) ? prev.filter((t) => t !== time) : [...prev, time]);
   };
 
-  const next = () => {
+  const next = async () => {
     if (step < totalSteps - 1) {
       setStep(step + 1);
     } else {
+      await AsyncStorage.setItem('osheni_onboarded', 'true');
+      await AsyncStorage.setItem('osheni_logged_in', 'true');
       router.replace('/home' as any);
     }
   };
