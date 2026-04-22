@@ -1,6 +1,6 @@
 import { tryOpenLink } from '@/services/linkingService';
 import { setSessionReminder } from '@/services/reminderService';
-import { resolveSessionJoin } from '@/services/sessionService';
+import { resolveSessionJoin, listLiveSessions } from '@/services/sessionService';
 
 export async function runSessionJoinAction(sessionId: string) {
   const joinPayload = await resolveSessionJoin(sessionId);
@@ -39,5 +39,7 @@ export async function runSessionJoinAction(sessionId: string) {
 }
 
 export async function runSessionReminderAction(sessionId: string) {
-  return setSessionReminder(sessionId);
+  const sessions = await listLiveSessions();
+  const session = sessions.find((item) => item.id === sessionId);
+  return setSessionReminder(sessionId, session?.title ?? 'Osheni Session');
 }
