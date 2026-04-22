@@ -6,6 +6,7 @@ import { AppScreen } from '@/components/AppScreen';
 import { Badge } from '@/components/Badge';
 import { Card } from '@/components/Card';
 import { getBillingIntegrationState } from '@/services/billingIntegrationService';
+import { runPrototypePurchaseExecution } from '@/services/billingExecutionService';
 import { runPrototypePurchaseAction } from '@/services/billingPurchaseService';
 import { availablePlans, getBillingState } from '@/services/billingService';
 import { theme } from '@/lib/theme';
@@ -17,6 +18,7 @@ export default function BillingScreen() {
   const [billing, setBilling] = useState<BillingState>(null);
   const [integration, setIntegration] = useState<BillingIntegrationState>(null);
   const [purchaseStatus, setPurchaseStatus] = useState('');
+  const [executionStatus, setExecutionStatus] = useState('');
 
   useEffect(() => {
     (async () => {
@@ -29,10 +31,16 @@ export default function BillingScreen() {
     })();
   }, []);
 
-  const handlePurchase = async () => {
+  const handlePurchaseCheck = async () => {
     setPurchaseStatus('Checking purchase options...');
     const result = await runPrototypePurchaseAction();
     setPurchaseStatus(result.message);
+  };
+
+  const handlePurchaseExecution = async () => {
+    setExecutionStatus('Preparing purchase execution...');
+    const result = await runPrototypePurchaseExecution();
+    setExecutionStatus(result.message);
   };
 
   if (!billing || !integration) {
@@ -63,10 +71,15 @@ export default function BillingScreen() {
             </View>
           ))}
         </View>
-        <Pressable onPress={handlePurchase} style={{ backgroundColor: theme.colors.primary, borderRadius: theme.radius.md, paddingVertical: 12, paddingHorizontal: 14 }}>
-          <Text style={{ color: theme.colors.white, textAlign: 'center', fontWeight: '700' }}>Continue to Purchase</Text>
+        <Pressable onPress={handlePurchaseCheck} style={{ backgroundColor: theme.colors.primary, borderRadius: theme.radius.md, paddingVertical: 12, paddingHorizontal: 14 }}>
+          <Text style={{ color: theme.colors.white, textAlign: 'center', fontWeight: '700' }}>Check Purchase Options</Text>
         </Pressable>
         {purchaseStatus ? <Text style={{ color: theme.colors.muted }}>{purchaseStatus}</Text> : null}
+
+        <Pressable onPress={handlePurchaseExecution} style={{ borderWidth: 1, borderColor: theme.colors.border, borderRadius: theme.radius.md, paddingVertical: 12, paddingHorizontal: 14 }}>
+          <Text style={{ color: theme.colors.text, textAlign: 'center', fontWeight: '700' }}>Run Purchase Execution Scaffold</Text>
+        </Pressable>
+        {executionStatus ? <Text style={{ color: theme.colors.muted }}>{executionStatus}</Text> : null}
       </Card>
 
       <Card>
