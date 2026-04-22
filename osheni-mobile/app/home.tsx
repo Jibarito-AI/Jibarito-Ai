@@ -1,39 +1,48 @@
 import { Text, View } from 'react-native';
-import { Screen } from '@/components/Screen';
-import { liveSessions, meditations, quickActions } from '@/lib/content';
+import { AppScreen } from '@/components/AppScreen';
+import { Card } from '@/components/Card';
+import { meditations, quickActions } from '@/lib/content';
+import { getNextLiveSession } from '@/services/sessionService';
+import { getCurrentUser } from '@/services/userService';
 import { theme } from '@/lib/theme';
 
-export default function HomeScreen() {
+const userPromise = getCurrentUser();
+const nextSessionPromise = getNextLiveSession();
+
+export default async function HomeScreen() {
+  const [user, nextSession] = await Promise.all([userPromise, nextSessionPromise]);
+
   return (
-    <Screen title="Home Dashboard">
-      <View style={{ backgroundColor: theme.colors.white, borderRadius: theme.radius.lg, padding: theme.spacing.lg, gap: 8 }}>
-        <Text style={{ color: theme.colors.muted }}>Good morning, Christopher</Text>
-        <Text style={{ color: theme.colors.text, fontSize: 24, fontWeight: '700' }}>12 day streak 🔥</Text>
+    <AppScreen title="Home Dashboard">
+      <Card style={{ borderRadius: theme.radius.lg, padding: theme.spacing.lg }}>
+        <Text style={{ color: theme.colors.muted }}>Good morning, {user.firstName}</Text>
+        <Text style={{ color: theme.colors.text, fontSize: 24, fontWeight: '700' }}>{user.streakCount ?? 0} day streak 🔥</Text>
         <Text style={{ color: theme.colors.text }}>Peace comes from what you practice daily.</Text>
-      </View>
+      </Card>
 
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm }}>
         {quickActions.map((item) => (
-          <View key={item} style={{ width: '47%', backgroundColor: theme.colors.white, borderRadius: theme.radius.md, padding: theme.spacing.md, borderWidth: 1, borderColor: theme.colors.border }}>
+          <Card key={item} style={{ width: '47%' }}>
             <Text style={{ color: theme.colors.text, fontWeight: '600' }}>{item}</Text>
-          </View>
+          </Card>
         ))}
       </View>
 
-      <View style={{ backgroundColor: theme.colors.white, borderRadius: theme.radius.lg, padding: theme.spacing.lg, gap: 10 }}>
+      <Card style={{ borderRadius: theme.radius.lg, padding: theme.spacing.lg }}>
         <Text style={{ color: theme.colors.text, fontSize: 18, fontWeight: '700' }}>Upcoming Live Session</Text>
-        <Text style={{ color: theme.colors.muted }}>{liveSessions[2].title} • {liveSessions[2].time}</Text>
-      </View>
+        <Text style={{ color: theme.colors.muted }}>{nextSession?.title ?? 'No session scheduled'} • {nextSession?.time ?? '--'}</Text>
+        {nextSession?.provider ? <Text style={{ color: theme.colors.muted }}>Provider: {nextSession.provider.toUpperCase()}</Text> : null}
+      </Card>
 
       <View style={{ gap: theme.spacing.sm }}>
         <Text style={{ color: theme.colors.text, fontSize: 18, fontWeight: '700' }}>Recommended For You</Text>
         {meditations.map((item) => (
-          <View key={item.title} style={{ backgroundColor: theme.colors.white, borderRadius: theme.radius.md, padding: theme.spacing.md, borderWidth: 1, borderColor: theme.colors.border }}>
+          <Card key={item.title}>
             <Text style={{ color: theme.colors.text, fontWeight: '600' }}>{item.title}</Text>
             <Text style={{ color: theme.colors.muted }}>{item.category} • {item.duration}</Text>
-          </View>
+          </Card>
         ))}
       </View>
-    </Screen>
+    </AppScreen>
   );
 }
