@@ -7,7 +7,7 @@ import { Badge } from '@/components/Badge';
 import { Card } from '@/components/Card';
 import { getSessionReminderState } from '@/services/reminderService';
 import { runSessionJoinAction, runSessionReminderAction } from '@/services/sessionActionService';
-import { listLiveSessions } from '@/services/sessionService';
+import { getRepositoryBackedLiveSessions } from '@/services/repositoryBackedSessionService';
 import type { LiveSession } from '@/types/session';
 import { theme } from '@/lib/theme';
 
@@ -27,7 +27,7 @@ export default function SessionsScreen() {
 
   useEffect(() => {
     (async () => {
-      const loaded = await listLiveSessions();
+      const loaded = await getRepositoryBackedLiveSessions();
       setSessions(loaded);
 
       const reminderStates = await Promise.all(
