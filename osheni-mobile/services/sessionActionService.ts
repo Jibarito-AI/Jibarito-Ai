@@ -1,3 +1,4 @@
+import { setSessionReminder } from '@/services/reminderService';
 import { resolveSessionJoin } from '@/services/sessionService';
 
 export async function runSessionJoinAction(sessionId: string) {
@@ -21,9 +22,5 @@ export async function runSessionJoinAction(sessionId: string) {
 }
 
 export async function runSessionReminderAction(sessionId: string) {
-  return {
-    ok: true,
-    sessionId,
-    message: 'Reminder placeholder saved for this session.'
-  };
+  return setSessionReminder(sessionId);
 }
