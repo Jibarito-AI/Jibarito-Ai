@@ -2,12 +2,16 @@ import { Text, TextInput, View } from 'react-native';
 import { AppScreen } from '@/components/AppScreen';
 import { Badge } from '@/components/Badge';
 import { Card } from '@/components/Card';
+import { getLatestMoodCheckIn } from '@/services/moodService';
 import { theme } from '@/lib/theme';
 
+const latestMoodPromise = getLatestMoodCheckIn();
 const moods = ['😊 Great', '🙂 Good', '😐 Okay', '😔 Not Great', '😢 Struggling'];
 const tags = ['Peaceful', 'Anxious', 'Stressed', 'Grateful', 'Sad', 'Energized', 'Calm'];
 
-export default function MoodScreen() {
+export default async function MoodScreen() {
+  const latestMood = await latestMoodPromise;
+
   return (
     <AppScreen title="Mood Check-In">
       <Card>
@@ -26,9 +30,10 @@ export default function MoodScreen() {
             <Badge key={tag} label={tag} />
           ))}
         </View>
+        <Text style={{ color: theme.colors.muted }}>Latest saved mood: {latestMood.level}</Text>
         <TextInput
           multiline
-          placeholder="Want to add anything?"
+          placeholder={latestMood.note ?? 'Want to add anything?'}
           placeholderTextColor={theme.colors.muted}
           style={{ minHeight: 120, textAlignVertical: 'top', borderWidth: 1, borderColor: theme.colors.border, borderRadius: theme.radius.md, paddingHorizontal: 14, paddingVertical: 12, color: theme.colors.text }}
         />
