@@ -2,10 +2,10 @@ import { Text, TextInput, View } from 'react-native';
 import { AppScreen } from '@/components/AppScreen';
 import { Badge } from '@/components/Badge';
 import { Card } from '@/components/Card';
-import { getLatestMoodCheckIn } from '@/services/moodService';
+import { getRepositoryBackedLatestMoodCheckIn } from '@/services/repositoryBackedMoodService';
 import { theme } from '@/lib/theme';
 
-const latestMoodPromise = getLatestMoodCheckIn();
+const latestMoodPromise = getRepositoryBackedLatestMoodCheckIn();
 const moods = ['😊 Great', '🙂 Good', '😐 Okay', '😔 Not Great', '😢 Struggling'];
 const tags = ['Peaceful', 'Anxious', 'Stressed', 'Grateful', 'Sad', 'Energized', 'Calm'];
 
